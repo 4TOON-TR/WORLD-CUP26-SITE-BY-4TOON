@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>شمارش معکوس جام جهانی ۲۰۲۶ | اولین مسابقه</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* جلوگیری از انتخاب متن برای حس بهتر */
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', 'Tahoma', sans-serif;
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 30%, #0a0f2a, #030617);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* پس زمینه متحرک با گرادینت خاص و انیمیشن شناور */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: linear-gradient(125deg, #0b1120, #141a30, #1e2a4a, #0f172a);
+            background-size: 400% 400%;
+            animation: gradientFlow 18s ease infinite;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ذرات متحرک (دایره های محو) برای افکت خاص */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            backdrop-filter: blur(3px);
+            animation: floatParticle 12s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes floatParticle {
+            0% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.2; }
+            100% { transform: translateY(-50px) translateX(30px) rotate(20deg); opacity: 0.7; }
+        }
+
+        /* کانتینر اصلی کارت */
+        .glass-card {
+            background: rgba(15, 25, 45, 0.55);
+            backdrop-filter: blur(12px);
+            border-radius: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+            width: 90%;
+            max-width: 800px;
+            padding: 2rem 1.8rem 3rem;
+            margin: 2rem;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        /* عنوان اصلی */
+        .title {
+            font-size: 2.3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFD166, #FF6B6B, #4ECDC4);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shimmer 5s linear infinite;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.5px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .sub {
+            color: #cbd5e6;
+            font-size: 1rem;
+            font-weight: 400;
+            margin-bottom: 2rem;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+
+        /* باکس شمارشگر لوکس */
+        .countdown-box {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.2rem;
+            margin: 2.8rem 0;
+        }
+
+        .time-unit {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            border-radius: 2rem;
+            padding: 1rem 0.6rem;
+            min-width: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .time-unit:hover {
+            transform: scale(1.03);
+            border-color: rgba(255, 215, 100, 0.6);
+        }
+
+        .number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(145deg, #FFF, #FFE5B4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            letter-spacing: 2px;
+        }
+
+        .label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            color: #b9c7dd;
+            margin-top: 0.5rem;
+        }
+
+        /* میکرو ثانیه شمار خاص و انیمیشن */
+        .micro-seconds {
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 60px;
+            padding: 0.7rem 1rem;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 10px;
+            backdrop-filter: blur(8px);
+            margin-top: 1rem;
+            font-family: monospace;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .micro-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #f0e6c5;
+        }
+
+        .micro-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #FFB347, #FF8C42);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+            min-width: 130px;
+            text-align: center;
+        }
+
+        /* تاریخ رویداد */
+        .event-date {
+            margin-top: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 2rem;
+            padding: 0.8rem;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #ccddf8;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .event-date span {
+            font-weight: 700;
+            color: #FFD966;
+        }
+
+        footer {
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            opacity: 0.6;
+            color: #9aaec7;
+        }
+
+        @media (max-width: 550px) {
+            .glass-card {
+                padding: 1.5rem;
+            }
+            .number {
+                font-size: 2.5rem;
+            }
+            .time-unit {
+                min-width: 70px;
+                padding: 0.6rem 0.2rem;
+            }
+            .micro-value {
+                font-size: 1.3rem;
+                min-width: 100px;
+            }
+            .title {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* انیمیشن چشمک برای ثانیه‌ها (نوسان ملایم) */
+        @keyframes gentlePulse {
+            0% { text-shadow: 0 0 0px rgba(255,200,100,0);}
+            100% { text-shadow: 0 0 8px rgba(255,200,100,0.5);}
+        }
+        .seconds-highlight {
+            animation: gentlePulse 1s infinite alternate;
+        }
+		@import url('https://fonts.googleapis.com/css2?family=Lalezar&display=swap');
+
+        body, h1, .title, .sub, .label, .event-date, footer, .micro-label {
+        font-family: 'Lalezar', 'Segoe UI', 'Tahoma', sans-serif !important;
+        }
+
+        .number, .micro-value {
+        font-family: 'Segoe UI', 'Tahoma', monospace !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="animated-bg"></div>
+<div class="particles" id="particlesContainer"></div>
+
+<div class="glass-card">
+    <h1 class="title">🏆 جام جهانی ۲۰۲۶ 🏆</h1>
+    <div class="sub">شمارش معکوس تا شروع اولین مسابقه</div>
+
+    <div class="countdown-box">
+        <div class="time-unit">
+            <div class="number" id="days">00</div>
+            <div class="label">روز</div>
+        </div>
+        <div class="time-unit">
+            <div class="number" id="hours">00</div>
+            <div class="label">ساعت</div>
+        </div>
+        <div class="time-unit">
+            <div class="number" id="minutes">00</div>
+            <div class="label">دقیقه</div>
+        </div>
+        <div class="time-unit">
+            <div class="number seconds-highlight" id="seconds">00</div>
+            <div class="label">ثانیه</div>
+        </div>
+    </div>
+
+    <div class="micro-seconds">
+        <span class="micro-label">⚡ ثانیه شماری دقیق (میلی‌ثانیه) ⚡</span>
+        <div class="micro-value" id="milliseconds">000</div>
+    </div>
+
+    <div class="event-date">
+    <div>📅 اولین مسابقه جام جهانی ۲۰۲۶:</div>
+        <div><span>۱۲ ژوئن ۲۰۲۶ - ساعت ۲۲:۳۰ به وقت ایران (UTC+3:30)</span></div>
+        <div>(منطقه زمانی اصلی مسابقه: ۱۱ ژوئن ۲۰۲۶ - ساعت ۱۵:۰۰ ET آمریکا)</div>
+    </div>
+    <footer>
+        تهیه و تنظیم توسط 4TOON
+    </footer>
+</div>
+
+<script>
+    // تاریخ اولین مسابقه جام جهانی 2026 - طبق برنامه FIFA ، افتتاحیه 11 ژوئن 2026
+    // زمان تقریبی مسابقه اول : ساعت 15:00 Eastern Time (نیویورک / UTC-4 در تابستان؟ ولی خرداد ماه daylight saving)
+    // برای اطمینان از صحت، ساعت 19:00 UTC  (UTC 19:00 برابر 15:00 منطقه زمانی ET - EDT)
+    // تاریخ: 11 June 2026, 19:00:00 UTC (ساعت جهانی)
+    // زیرا EDT (UTC-4) => 15:00 EDT = 19:00 UTC
+    const TARGET_DATE = new Date(Date.UTC(2026, 5, 11, 19, 0, 0)); // ژوئن = 5 در جاوااسکریپت (0-based)
+
+    // تابع به روز رسانی شمارش معکوس با میلی ثانیه
+    function updateCountdown() {
+        const now = new Date(); // زمان محلی کاربر ولی مقایسه UTC محض
+        const nowUTC = new Date(now.getTime() + (now.getTimezoneOffset() * 60000)); // تبدیل به UTC برای دقت
+        // اما هدف ما محاسبه اختلاف با TARGET_DATE (که UTC است)
+        // روش ساده: اختلاف میلی ثانیه بین الان و هدف بدون در نظر گرفتن منطقه
+        const diffMs = TARGET_DATE.getTime() - now.getTime();
+
+        if (diffMs <= 0) {
+            // زمان شروع مسابقه فرا رسیده یا گذشته
+            document.getElementById('days').innerText = '۰۰';
+            document.getElementById('hours').innerText = '۰۰';
+            document.getElementById('minutes').innerText = '۰۰';
+            document.getElementById('seconds').innerText = '۰۰';
+            document.getElementById('milliseconds').innerHTML = '🎉 آغاز جام جهانی 🎉';
+            return;
+        }
+
+        // محاسبات بر حسب میلی ثانیه
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        // میلی ثانیه باقی مانده (سه رقم)
+        const milliseconds = Math.floor(diffMs % 1000);
+
+        // نمایش با فرمت دو رقمی/سه رقمی
+        document.getElementById('days').innerText = formatNumber(days);
+        document.getElementById('hours').innerText = formatNumber(hours);
+        document.getElementById('minutes').innerText = formatNumber(minutes);
+        document.getElementById('seconds').innerText = formatNumber(seconds);
+        
+        // نمایش میلی ثانیه با سه رقم (پر کردن با صفر)
+        document.getElementById('milliseconds').innerHTML = formatMilliseconds(milliseconds);
+
+        // افکت جزئی انیمیشن روی ثانیه ها (چشمک CSS در کلاس seconds-highlight اعمال شده)
+        // همچنین هر 1 ثانیه یک تیک صوتی خیالی (بدون صدا) - فقط حس زنده بودن
+    }
+
+    function formatNumber(num) {
+        return num < 10 ? '0' + num : '' + num;
+    }
+
+    function formatMilliseconds(ms) {
+        if (ms < 10) return '00' + ms;
+        if (ms < 100) return '0' + ms;
+        return '' + ms;
+    }
+
+    // ایجاد ذرات متحرک تصادفی برای زیبایی گرادینت
+    function createParticles() {
+        const container = document.getElementById('particlesContainer');
+        const particleCount = 60;
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            const size = Math.random() * 40 + 10;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDuration = Math.random() * 15 + 8 + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            particle.style.background = `radial-gradient(circle, rgba(255, 210, 90, 0.2), rgba(255, 80, 120, 0.05))`;
+            particle.style.filter = 'blur(6px)';
+            container.appendChild(particle);
+        }
+    }
+
+    // تابعی برای به روز رسانی بسیار سریع (حدود 30 فریم بر ثانیه برای میلی ثانیه روان)
+    let lastTimestamp = 0;
+    function animationLoop() {
+        updateCountdown();
+        requestAnimationFrame(animationLoop);
+    }
+
+    // راه اندازی ذرات و حلقه
+    createParticles();
+    animationLoop();
+
+    // تیک تاک ثانویه برای نمایش سایه داینامیک (اختیاری، اما مطلوب)
+    // برای همگام سازی با درخواست انیمیشن میلی ثانیه ای بدون وقفه انجام میشه 
+    // همچنین یک متن خوشامدگویی پویا در کنسول (برای زیبایی)
+    console.log('🏆 جام جهانی 2026 | شمارشگر آنی با گرادینت خاص و انیمیشن زنده');
+
+    // اضافه کردن یک المان گرا (نور شناور) با موس - افکت تعاملی جذاب
+    const glassCard = document.querySelector('.glass-card');
+    document.addEventListener('mousemove', (e) => {
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        const moveX = (x - 0.5) * 20;
+        const moveY = (y - 0.5) * 20;
+        if (glassCard) {
+            glassCard.style.transform = `perspective(1000px) rotateX(${moveY * 0.1}deg) rotateY(${moveX * 0.1}deg) translateZ(3px)`;
+            glassCard.style.transition = 'transform 0.2s ease-out';
+        }
+    });
+
+    // رفرش رزوم لمسی (برای موبایل) ریست شدن تدریجی
+    document.addEventListener('mouseleave', () => {
+        if (glassCard) {
+            glassCard.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+        }
+    });
+
+    // همچنین متن خوش‌آمد با تغییر گرادینت ثانیه به صورت داینامیک (ساعت زنده)
+    // اضافه کردن یک عنصر تغییر گرادیان حاشیه کارت (اختیاری)
+    setInterval(() => {
+        // یک افکت جزئی زیبا که رنگ حاشیه کارت را بین طلایی و نقره ای تغییر میده
+        const borderIntensity = (Date.now() % 2000) / 2000;
+        const r = 255;
+        const g = 180 + Math.floor(75 * Math.sin(Date.now() / 1500));
+        const b = 100;
+        glassCard.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.45)`;
+    }, 800);
+function playBeep() {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.frequency.value = 880;
+    gainNode.gain.value = 0.05;
+    oscillator.start();
+    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.2);
+    oscillator.stop(audioCtx.currentTime + 0.2);
+}
+// هر بار که عدد ثانیه تغییر کرد (داخل تابع updateCountdown، بعد از به‌روزرسانی seconds)
+if(seconds === 0) playBeep(); // فقط روی صفر ثانیه بوق بزند
+</script>
+<!-- مینی‌گیم پنالتی در گوشه سایت -->
+<style>
+    .game-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+    .game-btn {
+        background: linear-gradient(135deg, #ff8c00, #ff2e00);
+        border: none;
+        border-radius: 50px;
+        padding: 12px 20px;
+        font-family: 'Lalezar', cursive;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        transition: all 0.2s ease;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+    .game-btn:hover {
+        transform: scale(1.05);
+        background: linear-gradient(135deg, #ffaa33, #ff4411);
+    }
+    .game-panel {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 280px;
+        background: rgba(10, 20, 35, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        padding: 15px;
+        border: 1px solid rgba(255,215,0,0.5);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        z-index: 999;
+        transform: scale(0);
+        transition: transform 0.2s ease;
+        transform-origin: bottom right;
+        font-family: 'Lalezar', 'Segoe UI', sans-serif;
+        color: white;
+        text-align: center;
+    }
+    .game-panel.open {
+        transform: scale(1);
+    }
+    .goal-area {
+        display: flex;
+        justify-content: center;
+        margin: 10px 0;
+        position: relative;
+    }
+    .goal {
+        width: 200px;
+        height: 130px;
+        background: #1e5a2e;
+        border-radius: 12px;
+        position: relative;
+        cursor: pointer;
+        border: 3px solid gold;
+        overflow: hidden;
+    }
+    .goal-left, .goal-right, .goal-center {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 33.33%;
+        cursor: pointer;
+        transition: background 0.1s;
+    }
+    .goal-left { left: 0; }
+    .goal-center { left: 33.33%; }
+    .goal-right { left: 66.66%; }
+    .goal-left:hover, .goal-right:hover, .goal-center:hover {
+        background: rgba(255,255,0,0.2);
+    }
+    .score-text {
+        font-size: 1.3rem;
+        margin: 8px 0;
+    }
+    .message {
+        background: rgba(0,0,0,0.6);
+        border-radius: 50px;
+        padding: 5px;
+        font-size: 0.8rem;
+        margin-top: 8px;
+    }
+    .reset-game {
+        background: #444;
+        border: none;
+        border-radius: 30px;
+        padding: 5px 12px;
+        margin-top: 8px;
+        color: white;
+        cursor: pointer;
+        font-family: inherit;
+    }
+    @media (max-width: 500px) {
+        .game-panel { width: 260px; right: 10px; bottom: 70px; }
+        .game-btn { padding: 8px 14px; font-size: 0.9rem; }
+    }
+</style>
+
+<div class="game-toggle">
+	<!-- دکمه جدید با id متفاوت -->
+    <button class="game-btn" id="gameToggleBtn">⚽ مینی‌گیم پنالتی</button>
+</div>
+<div class="game-panel" id="gamePanel">
+    <div style="font-size:1.2rem;">🔥 پنالتی بزن 🔥</div>
+    <div class="score-text">امتیاز: <span id="score">0</span></div>
+    <div class="goal-area">
+        <div class="goal" id="goalZone">
+            <div class="goal-left" data-side="left"></div>
+            <div class="goal-center" data-side="center"></div>
+            <div class="goal-right" data-side="right"></div>
+        </div>
+    </div>
+    <div class="message" id="gameMsg">👇 به سمت دروازه شلیک کن!</div>
+    <button class="reset-game" id="resetGame">🔄 شروع مجدد</button>
+</div>
+
+<script>
+    // مینی گیم پنالتی
+    let gameScore = 0;
+    let gameActive = true;
+    const scoreSpan = document.getElementById('score');
+    const msgDiv = document.getElementById('gameMsg');
+    const goalZone = document.getElementById('goalZone');
+    const toggleBtn = document.getElementById('gameToggleBtn');
+    const panel = document.getElementById('gamePanel');
+
+    // انتخاب تصادفی جهت goalkeeper
+    function randomSide() {
+        const sides = ['left', 'center', 'right'];
+        return sides[Math.floor(Math.random() * 3)];
+    }
+
+    // شوت زدن
+    function shoot(selectedSide) {
+        if (!gameActive) return;
+        const keeperSide = randomSide();
+        let result = '';
+        if (selectedSide === keeperSide) {
+            result = '❌ گــــرفت 🧤';
+            msgDiv.style.background = '#8b0000';
+        } else {
+            gameScore++;
+            scoreSpan.innerText = gameScore;
+            result = '🥅 گـــــل! ⚽🎉';
+            msgDiv.style.background = '#1e6b3b';
+        }
+        msgDiv.innerHTML = `${result}<br>(دروازه‌بان به ${keeperSide === 'left' ? 'چپ' : keeperSide === 'center' ? 'وسط' : 'راست'} رفت)`;
+        setTimeout(() => {
+            msgDiv.style.background = 'rgba(0,0,0,0.6)';
+            if(gameActive) msgDiv.innerHTML = '👇 دوباره شلیک کن!';
+        }, 1200);
+        // افکت لرزش مختصر روی دروازه
+        const goal = document.querySelector('.goal');
+        goal.style.transform = 'scale(0.98)';
+        setTimeout(() => goal.style.transform = '', 120);
+    }
+
+    // راه اندازی کلیک روی قسمت های دروازه
+    document.querySelectorAll('[data-side]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const side = el.getAttribute('data-side');
+            shoot(side);
+        });
+    });
+
+    // ریست بازی
+    document.getElementById('resetGame').addEventListener('click', () => {
+        gameScore = 0;
+        scoreSpan.innerText = '0';
+        gameActive = true;
+        msgDiv.innerHTML = '🔄 بازی ریست شد! 🎯';
+        msgDiv.style.background = 'rgba(0,0,0,0.6)';
+    });
+
+    // باز و بسته کردن پنل مینی‌گیم
+    toggleBtn.addEventListener('click', () => {
+        panel.classList.toggle('open');
+    });
+    // بستن در صورت کلیک بیرون (اختیاری)
+    document.addEventListener('click', (e) => {
+        if (!panel.contains(e.target) && !toggleBtn.contains(e.target) && panel.classList.contains('open')) {
+            panel.classList.remove('open');
+        }
+    });
+</script>
+</body>
+</html>
